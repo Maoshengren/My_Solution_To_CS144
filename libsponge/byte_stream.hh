@@ -1,7 +1,12 @@
 #ifndef SPONGE_LIBSPONGE_BYTE_STREAM_HH
 #define SPONGE_LIBSPONGE_BYTE_STREAM_HH
 
+#include "util/buffer.hh"
+
+#include <cstddef>
+#include <cstdint>
 #include <string>
+#include <utility>
 
 //! \brief An in-order byte stream.
 
@@ -11,13 +16,12 @@
 class ByteStream {
   private:
     // Your code here -- add private members as necessary.
-
-    // Hint: This doesn't need to be a sophisticated data structure at
-    // all, but if any of your tests are taking longer than a second,
-    // that's a sign that you probably want to keep exploring
-    // different approaches.
-
-    bool _error{};  //!< Flag indicating that the stream suffered an error.
+    size_t myCapacity = 0;
+    std::string buf{};
+    bool endInput = false;
+    size_t bytesWritten = 0;
+    size_t bytesRead = 0;
+    bool errorState = false;
 
   public:
     //! Construct a stream with room for `capacity` bytes.
@@ -38,7 +42,7 @@ class ByteStream {
     void end_input();
 
     //! Indicate that the stream suffered an error.
-    void set_error() { _error = true; }
+    void set_error();
     //!@}
 
     //! \name "Output" interface for the reader
@@ -52,14 +56,14 @@ class ByteStream {
     void pop_output(const size_t len);
 
     //! Read (i.e., copy and then pop) the next "len" bytes of the stream
-    //! \returns a string
+    //! \returns a vector of bytes read
     std::string read(const size_t len);
 
     //! \returns `true` if the stream input has ended
     bool input_ended() const;
 
     //! \returns `true` if the stream has suffered an error
-    bool error() const { return _error; }
+    bool error() const;
 
     //! \returns the maximum amount that can currently be read from the stream
     size_t buffer_size() const;
