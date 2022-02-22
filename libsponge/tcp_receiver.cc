@@ -25,7 +25,6 @@ void TCPReceiver::segment_received(const TCPSegment &seg) {
     uint64_t curr_abs_seqno = unwrap(header.seqno, _isn, abs_ackno);
 
     //! NOTE: SYN 包中的 payload 不能被丢弃
-    //! NOTE: reassember 足够鲁棒以至于无需进行任何 seqno 过滤操作
     uint64_t stream_index = curr_abs_seqno - 1 + (header.syn);
     _reassembler.push_substring(seg.payload().copy(), stream_index, header.fin);
 }
