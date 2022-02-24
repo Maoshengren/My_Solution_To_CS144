@@ -15,13 +15,13 @@
 class StreamReassembler {
   private:
     // Your code here -- add private members as necessary.
-    bool isEof = false;
-    size_t headIndex = 0;
-    size_t unassembledBytes = 0;
-    std::deque<char> buff;
-    std::deque<bool> check;
-    ByteStream output;
-    size_t myCapacity = 0;
+    bool _eof = false;
+    size_t _head_index = 0;
+    size_t _unassembled_bytes = 0;
+    std::deque<char> _buff;
+    std::deque<bool> _check;
+    ByteStream _output;
+    size_t _capacity = 0;
     // std::deque<char> _buf;
     // std::deque<bool> _check;
     // size_t _unassembled_bytes {0};
@@ -50,8 +50,8 @@ class StreamReassembler {
 
     //! \name Access the reassembled byte stream
     //!@{
-    const ByteStream &stream_out() const { return output; }
-    ByteStream &stream_out() { return output; }
+    const ByteStream &stream_out() const { return _output; }
+    ByteStream &stream_out() { return _output; }
     //!@}
 
     //! The number of bytes in the substrings stored but not yet reassembled
@@ -64,8 +64,8 @@ class StreamReassembler {
     //! \returns `true` if no substrings are waiting to be assembled
     bool empty() const;
 
-    size_t head_index() const { return headIndex; }
-    bool input_ended() const { return output.input_ended(); }
+    size_t head_index() const { return _head_index; }
+    bool input_ended() const { return _output.input_ended(); }
 };
 
 #endif  // SPONGE_LIBSPONGE_STREAM_REASSEMBLER_HH

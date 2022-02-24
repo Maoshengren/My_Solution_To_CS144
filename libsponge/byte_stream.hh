@@ -16,12 +16,12 @@
 class ByteStream {
   private:
     // Your code here -- add private members as necessary.
-    size_t myCapacity = 0;
-    std::string buf{};
-    bool endInput = false;
-    size_t bytesWritten = 0;
-    size_t bytesRead = 0;
-    bool errorState = false;
+    size_t _capacity = 0;
+    std::string _buff{};
+    bool _end_input = false;
+    size_t _bytes_written = 0;
+    size_t _bytes_read = 0;
+    bool _error = false;
 
   public:
     //! Construct a stream with room for `capacity` bytes.

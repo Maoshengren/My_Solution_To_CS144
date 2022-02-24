@@ -15,52 +15,52 @@
 
 using namespace std;
 
-StreamReassembler::StreamReassembler(const size_t capacity) : buff(capacity, '\0'), check(capacity, false), output(capacity), myCapacity(capacity) {}
+StreamReassembler::StreamReassembler(const size_t capacity) : _buff(capacity, '\0'), _check(capacity, false), _output(capacity), _capacity(capacity) {}
 
 //! \details This function accepts a substring (aka a segment) of bytes,
 //! possibly out-of-order, from the logical stream, and assembles any newly
 //! contiguous substrings and writes them into the output stream in order.
 void StreamReassembler::push_substring(const string &data, const size_t index, const bool eof) {
     size_t size = data.size();
-    if(index >= headIndex + output.remaining_capacity())
+    if(index >= _head_index + _output.remaining_capacity())
         return;
-    if(index + size < headIndex){
+    if(index + size < _head_index){
         if(eof)
-            isEof = true;
+            _eof = true;
     }
     else {
-        if (index + data.size() <= headIndex + output.remaining_capacity()) 
+        if (index + data.size() <= _head_index + _output.remaining_capacity()) 
             if(eof)
-                isEof = true;
-        size_t len = min(index + data.size(), headIndex + output.remaining_capacity());
+                _eof = true;
+        size_t len = min(index + data.size(), _head_index + _output.remaining_capacity());
         for(size_t i = index; i < len; i++){ 
-            if(i >= headIndex && !check[i - headIndex]){
-                buff[i - headIndex] = data[i - index];
-                check[i - headIndex] = true;
-                unassembledBytes++;
+            if(i >= _head_index && !_check[i - _head_index]){
+                _buff[i - _head_index] = data[i - index];
+                _check[i - _head_index] = true;
+                _unassembled_bytes++;
             }
         }
         string str = "";
-        while (check.front()) {
-            str += buff.front();
-            buff.pop_front();
-            buff.push_back('\0');
-            check.pop_front();
-            check.push_back(false);
+        while (_check.front()) {
+            str += _buff.front();
+            _buff.pop_front();
+            _buff.push_back('\0');
+            _check.pop_front();
+            _check.push_back(false);
         }
 
         len = str.size();
         if (len > 0) {
-            unassembledBytes -= len;
-            headIndex += len;
-            output.write(str);
+            _unassembled_bytes -= len;
+            _head_index += len;
+            _output.write(str);
         }
     }
-    if (isEof && empty()) {
-        output.end_input();
+    if (_eof && empty()) {
+        _output.end_input();
     }
 }
 
-size_t StreamReassembler::unassembled_bytes() const { return unassembledBytes; }
+size_t StreamReassembler::unassembled_bytes() const { return _unassembled_bytes; }
 
-bool StreamReassembler::empty() const { return unassembledBytes == 0; }
+bool StreamReassembler::empty() const { return _unassembled_bytes == 0; }

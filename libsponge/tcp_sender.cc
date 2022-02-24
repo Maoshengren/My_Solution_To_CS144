@@ -18,7 +18,8 @@ using namespace std;
 //! \param[in] retx_timeout the initial amount of time to wait before retransmitting the oldest outstanding segment
 //! \param[in] fixed_isn the Initial Sequence Number to use, if set (otherwise uses a random ISN)
 TCPSender::TCPSender(const size_t capacity, const uint16_t retx_timeout, const std::optional<WrappingInt32> fixed_isn)
-    : _isn(fixed_isn.value_or(WrappingInt32{random_device()()}))
+    : _rto(retx_timeout)
+    , _isn(fixed_isn.value_or(WrappingInt32{random_device()()}))
     , _initial_retransmission_timeout{retx_timeout}
     , _stream(capacity) {}
 
@@ -61,8 +62,8 @@ void TCPSender::fill_window() {
 
         // 如果没有正在等待的数据包，则重设更新时间
         if (_outgoing_map.empty()) {
-            _timeout = _initial_retransmission_timeout;
-            _timecount = 0;
+            _rto = _initial_retransmission_timeout;
+            _time_eldest_pkg_passed = 0;
         }
 
         // 发送
@@ -96,8 +97,8 @@ void TCPSender::ack_received(const WrappingInt32 ackno, const uint16_t window_si
             iter = _outgoing_map.erase(iter);
 
             // 如果有新的数据包被成功接收，则清空超时时间
-            _timeout = _initial_retransmission_timeout;
-            _timecount = 0;
+            _rto = _initial_retransmission_timeout;
+            _time_eldest_pkg_passed = 0;
         }
         // 如果当前遍历到的数据包还没被接收，则说明后面的数据包均未被接收，因此直接返回
         else
@@ -111,15 +112,15 @@ void TCPSender::ack_received(const WrappingInt32 ackno, const uint16_t window_si
 
 //! \param[in] ms_since_last_tick the number of milliseconds since the last call to this method
 void TCPSender::tick(const size_t ms_since_last_tick) { 
-    _timecount += ms_since_last_tick;
+    _time_eldest_pkg_passed += ms_since_last_tick;
 
     auto iter = _outgoing_map.begin();
     // 如果存在发送中的数据包，并且定时器超时
-    if (iter != _outgoing_map.end() && _timecount >= _timeout) {
+    if (iter != _outgoing_map.end() && _time_eldest_pkg_passed >= _rto) {
         // 如果窗口大小不为0还超时，则说明网络拥堵
         if (_last_window_size > 0)
-            _timeout *= 2;
-        _timecount = 0;
+            _rto *= 2;
+        _time_eldest_pkg_passed = 0;
         _segments_out.push(iter->second);
         // 连续重传计时器增加
         ++_consecutive_retransmissions_count;

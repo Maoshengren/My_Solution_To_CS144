@@ -18,8 +18,8 @@
 //! segments if the retransmission timer expires.
 class TCPSender {
   private:
-    int _timeout{-1};
-    int _timecount{0};
+    int _rto;
+    int _time_eldest_pkg_passed{0};
 
     std::map<size_t, TCPSegment> _outgoing_map{};
     size_t _outgoing_bytes{0};

@@ -38,6 +38,7 @@ optional<WrappingInt32> TCPReceiver::ackno() const {
     // 如果当前处于 FIN_RECV 状态，则还需要加上 FIN 标志长度
     if (_reassembler.stream_out().input_ended())
         ++abs_ack_no;
-    return WrappingInt32(_isn) + abs_ack_no; }
+    return wrap(abs_ack_no, _isn); 
+}
 
 size_t TCPReceiver::window_size() const { return _capacity - _reassembler.stream_out().buffer_size(); }
