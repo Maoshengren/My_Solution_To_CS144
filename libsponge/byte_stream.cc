@@ -36,14 +36,16 @@ string ByteStream::peek_output(const size_t len) const {
     if(size == 0)
         return "";
     size_t _read_num = min(len, size);
-    string _read_string = _buff.substr(0, _read_num);
-    return _read_string;
+    // _offset += _read_num;
+    // return _buff.substr(_offset, _read_num);
+    return _buff.substr(_offset, _read_num);
 }
 
 //! \param[in] len bytes will be removed from the output side of the buffer
 void ByteStream::pop_output(const size_t len) {
     size_t _erase_num = min(len, _buff.size());
-    _buff.erase(0, _erase_num);
+    _buff = _buff.substr(_erase_num);
+    // _buff.erase(0, _erase_num);
     _bytes_read += len;
 }
 

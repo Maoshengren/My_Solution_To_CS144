@@ -21,6 +21,8 @@ void TCPReceiver::segment_received(const TCPSegment &seg) {
         _isn = header.seqno;
         _set_syn_flag = true;
     }
+    if(seg.length_in_sequence_space() == 0)
+        return;
     uint64_t abs_ackno = _reassembler.stream_out().bytes_written() + 1;
     uint64_t curr_abs_seqno = unwrap(header.seqno, _isn, abs_ackno);
 

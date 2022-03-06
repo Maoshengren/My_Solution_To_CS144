@@ -72,6 +72,9 @@ void TCPConnection::segment_received(const TCPSegment &seg) {
     // 如果收到的数据包里没有任何数据，则这个数据包可能只是为了 keep-alive
     if (need_send_ack)
         _sender.send_empty_segment();
+    // if (_receiver.ackno().has_value() and (seg.length_in_sequence_space() == 0) and seg.header().seqno == _receiver.ackno().value() - 1) {
+    //     _sender.send_empty_segment();
+    // }
     _trans_segments_out_with_ack_and_win();
 }
 

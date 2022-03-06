@@ -15,20 +15,21 @@
 class StreamReassembler {
   private:
     // Your code here -- add private members as necessary.
+    struct block_node {
+        size_t begin = 0;
+        size_t length = 0;
+        std::string data = "";
+        bool operator<(const block_node t) const { return begin < t.begin; }
+    };
     bool _eof = false;
     size_t _head_index = 0;
     size_t _unassembled_bytes = 0;
-    std::deque<char> _buff;
-    std::deque<bool> _check;
+    std::set<block_node> _buffers = {};
     ByteStream _output;
-    size_t _capacity = 0;
-    // std::deque<char> _buf;
-    // std::deque<bool> _check;
-    // size_t _unassembled_bytes {0};
-    // size_t _head_index {0};
-    // bool _is_eof {false};
-    // ByteStream _output;  //!< The reassembled in-order byte stream
-    // size_t _capacity;    //!< The maximum number of bytes
+    size_t _capacity;
+
+    //! merge elm2 to elm1, return merged bytes
+    long merge_block(block_node &block1, const block_node &block2);
 
   public:
     //! \brief Construct a `StreamReassembler` that will store up to `capacity` bytes.

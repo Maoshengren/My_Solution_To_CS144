@@ -18,6 +18,7 @@ class ByteStream {
     // Your code here -- add private members as necessary.
     size_t _capacity = 0;
     std::string _buff{};
+    size_t _offset = 0;
     bool _end_input = false;
     size_t _bytes_written = 0;
     size_t _bytes_read = 0;
